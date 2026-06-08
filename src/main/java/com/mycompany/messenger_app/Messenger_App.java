@@ -19,76 +19,87 @@ public class Messenger_App {
         // Declaration of Scanner and ArrayList used for storing users
         Scanner scanner = new Scanner(System.in);
         ArrayList<Login> users = new ArrayList<>();
-        int selection = 0;
+        int selection = -2;
         String[] options = {"Register user", "Log in", "Quit"};
     
         // Main menu reappears after each case unless program is terminated
         while(running) {
     
             selection = JOptionPane.showOptionDialog(null, "Welcome to QuickChat!",
-                                                     "Registration",
+                                                     "QuickChat",
                                                      JOptionPane.YES_NO_CANCEL_OPTION,
                                                      JOptionPane.PLAIN_MESSAGE,
-                                                     null, options, 0);
+                                                     null, options, -2);
 
             switch(selection) {
-                case 0 -> {
-                    System.out.print("\nEnter a username: ");
-                    String username = scanner.nextLine();
+                case 0 -> {                   
+                    String username = JOptionPane.showInputDialog(null, "Enter a username." +
+                                                            "\n\nHint: Username must have an underscore(_), and cannot be longer than five characters.",
+                                                            "Register User", JOptionPane.PLAIN_MESSAGE);
                     
+                    if(username == null) {
+                        break;
+                    }
+                        
                     // Validation of username (uses checkUsername method within the Login class)
                     if(Login.checkUsername(username)){
                         // Checks if username already exists in arraylist
                         if(users.stream().anyMatch(u -> u.getUsername().equals(username))){
-                            System.out.println("Username already exists. Please choose a different username.");
+                            JOptionPane.showMessageDialog(null, "Username already exists. Please choose a different username.",
+                                                          "Register User", JOptionPane.WARNING_MESSAGE);
                             break;
-                        }
-                        
-                        System.out.println("Username successfully captured.");
+                        }                       
                     }else{
                         // Prints helpful message using the registerUser method within the Login class
-                        System.out.println(Login.registerUser("InvalidUsername"));
+                        Login.registerUser("InvalidUsername");
                         break;
                     }                                       
                                             
-                    System.out.print("\nEnter a password: ");
-                    String password = scanner.nextLine();
+                    String password = JOptionPane.showInputDialog(null, "Enter a password." +
+                                                                  "\n\nHint: Password must have a capital letter, " +
+                                                                  "a number, a special character, and must be at least eight characters long.",
+                                                                  "Register User", JOptionPane.PLAIN_MESSAGE);
                     
-                    // Validation of password (uses checkPasswordComplexity method within the Login class)
-                    if(Login.checkPasswordComplexity(password)){
-                        System.out.println("Password successfully captured.");
-                    }else{
-                        // Prints helpful message using the registerUser method within the Login class
-                        System.out.println(Login.registerUser("InvalidPassword"));
+                    if(password == null) {
                         break;
                     }
-                                         
-                    System.out.print("\nEnter your cell phone number (+27XXXXXXXXX): ");
-                    String phoneNumber = scanner.nextLine();
                     
+                    // Validation of password (uses checkPasswordComplexity method within the Login class)
+                    if(!Login.checkPasswordComplexity(password)){
+                        // Prints helpful message using the registerUser method within the Login class
+                        Login.registerUser("InvalidPassword");
+                        break;
+                    }
+                    
+                    String phoneNumber = JOptionPane.showInputDialog(null, "Enter your cell phone number." +
+                                                                     "\n\nHint: Phone number must contain the South African country code(+27XXXXXXXXX).",
+                                                                     "Register User", JOptionPane.PLAIN_MESSAGE);
+                    
+                    if(phoneNumber == null) {
+                        break;
+                    }
+                                                          
                     // Validation of phone number (uses checkCellPhoneNumber method within the Login class)                    
-                    if(Login.checkCellPhoneNumber(phoneNumber)){
-                        System.out.println("Cell phone number successfully added.");
-                    }else{
-                        System.out.println("Cell phone number incorrectly formatted " +
-                                           "or does not contain international code.");
+                    if(!Login.checkCellPhoneNumber(phoneNumber)){
+                        Login.registerUser("InvalidCellNum");
                         break;
                     }
                     
                     // User is added to the ArrayList and a message is displayed if registration is successful
                     users.add(new Login(username, password, phoneNumber));
-                    System.out.println(Login.registerUser("RegisterSuccess"));
+                    Login.registerUser("RegisterSuccess");
                     
                     // User is prompted to log in immediately after registering (uses the promptLogin method)
-                    System.out.println("\nWelcome " + username + " it is great to see you.");
-                    System.out.println("Redirecting to login page...\n");
+                    JOptionPane.showMessageDialog(null, "Welcome, " + username + ". It is great to see you!\nRedirecting to login page...",
+                                                  "QuickChat", JOptionPane.PLAIN_MESSAGE);
                     promptLogin(scanner, users);
                     break;
                 }
                 case 1 -> {
                     // Checks if the ArrayList is empty (no registered users), otherwise prompts login
                     if(users.isEmpty()){
-                        System.out.println("\nNo users have registered yet! Please register first.\n");
+                        JOptionPane.showMessageDialog(null, "No users have registered yet! Please register first.",
+                                                      "Log in", JOptionPane.INFORMATION_MESSAGE);
                         break;
                     }
                     
@@ -97,13 +108,13 @@ public class Messenger_App {
                 }
                 case 2, -1 -> {
                     // Terminates the program
-                    System.out.println("\nExiting... Come back soon!");
-                    scanner.close();
+                    JOptionPane.showMessageDialog(null, "Exiting... Come back soon!", "Quit",
+                                                  JOptionPane.INFORMATION_MESSAGE);
                     running = false;
                 }
                 default ->
                     // Invalid input error message
-                    JOptionPane.showMessageDialog(null, "Please enter a valid number (1, 2, 3)", "Invalid Value", JOptionPane.WARNING_MESSAGE);
+                    System.out.println("Invalid input.");
             }
         }
     }
@@ -305,17 +316,26 @@ public class Messenger_App {
         }
         
         // Method that returns a message depending on registration success
-        public static String registerUser(String registerCase){
-            return switch(registerCase){
-                case "InvalidUsername" -> "Username is not correctly formatted; please ensure that " +
-                                          "your username contains an underscore and is no more than " +
-                                          "five characters in length.";
-                case "InvalidPassword" -> "Password is not correctly formatted; please ensure that the " +
-                                          "password contains at least eight characters, a capital letter, " +
-                                          "a number, and a special character.";
-                case "RegisterSuccess" -> "\nRegistered successfully.";
-                default -> "Invalid case.";
-            };
+        public static void registerUser(String registerCase){
+            switch(registerCase){
+                case "InvalidUsername" -> JOptionPane.showMessageDialog(null,
+                                                                        "Username is not correctly formatted; please ensure that " +
+                                                                        "your username contains an underscore and is no more than " +
+                                                                        "five characters in length.", "Register User",
+                                                                        JOptionPane.WARNING_MESSAGE);
+                case "InvalidPassword" -> JOptionPane.showMessageDialog(null,
+                                                                        "Password is not correctly formatted; please ensure that the " +
+                                                                        "password contains at least eight characters, a capital letter, " +
+                                                                        "a number, and a special character.", "Register User",
+                                                                        JOptionPane.WARNING_MESSAGE);
+                case "InvalidCellNum" -> JOptionPane.showMessageDialog(null,
+                                                                       "Cell phone number incorrectly formatted " +
+                                                                       "or does not contain international code.", "Register User",
+                                                                       JOptionPane.WARNING_MESSAGE);
+                case "RegisterSuccess" -> JOptionPane.showMessageDialog(null, "Registered successfully.", "Register User",
+                                                                        JOptionPane.INFORMATION_MESSAGE);
+                default -> System.out.println("Invalid case.");
+            }
         }
         
         // Checks if password matches when logging in
