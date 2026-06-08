@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Random;
+import javax.swing.JOptionPane;
 
 
 public class Messenger_App {
@@ -18,21 +19,20 @@ public class Messenger_App {
         // Declaration of Scanner and ArrayList used for storing users
         Scanner scanner = new Scanner(System.in);
         ArrayList<Login> users = new ArrayList<>();
-           
-        System.out.println("============ Registration ============");
+        int selection = 0;
+        String[] options = {"Register user", "Log in", "Quit"};
     
         // Main menu reappears after each case unless program is terminated
-        while(running){
-            System.out.println("1. Register User");
-            System.out.println("2. Log in");
-            System.out.println("3. Quit");
+        while(running) {
+    
+            selection = JOptionPane.showOptionDialog(null, "Welcome to QuickChat!",
+                                                     "Registration",
+                                                     JOptionPane.YES_NO_CANCEL_OPTION,
+                                                     JOptionPane.PLAIN_MESSAGE,
+                                                     null, options, 0);
 
-            System.out.print("Select an option (1, 2, 3): ");
-            int selection = scanner.nextInt();
-            scanner.nextLine();
-
-            switch(selection){
-                case 1 -> {
+            switch(selection) {
+                case 0 -> {
                     System.out.print("\nEnter a username: ");
                     String username = scanner.nextLine();
                     
@@ -85,7 +85,7 @@ public class Messenger_App {
                     promptLogin(scanner, users);
                     break;
                 }
-                case 2 -> {
+                case 1 -> {
                     // Checks if the ArrayList is empty (no registered users), otherwise prompts login
                     if(users.isEmpty()){
                         System.out.println("\nNo users have registered yet! Please register first.\n");
@@ -95,7 +95,7 @@ public class Messenger_App {
                     promptLogin(scanner, users);
                     break;
                 }
-                case 3 -> {
+                case 2, -1 -> {
                     // Terminates the program
                     System.out.println("\nExiting... Come back soon!");
                     scanner.close();
@@ -103,7 +103,7 @@ public class Messenger_App {
                 }
                 default ->
                     // Invalid input error message
-                    System.out.println("\nPlease enter a valid number (1, 2, 3)");
+                    JOptionPane.showMessageDialog(null, "Please enter a valid number (1, 2, 3)", "Invalid Value", JOptionPane.WARNING_MESSAGE);
             }
         }
     }
