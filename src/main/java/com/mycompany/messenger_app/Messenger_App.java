@@ -1,7 +1,6 @@
 package com.mycompany.messenger_app;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -10,21 +9,30 @@ import java.util.Random;
 import javax.swing.JOptionPane;
 
 
-public class Messenger_App {
-    
+public class Messenger_App {  
+    // As long as this value is true, the program will continue to run
     static boolean running = true;
 
-    public static void main(String[] args) {
-        
-        // Declaration of Scanner and ArrayList used for storing users
-        Scanner scanner = new Scanner(System.in);
+    public static void main(String[] args) {      
+        // Declaration of ArrayList used for storing user
         ArrayList<Login> users = new ArrayList<>();
+        // Selection is initialised as -2 because it's outside the
+        // range of numbers it could become (-1, 0, 1, 2).
         int selection = -2;
+        // Array that stores the options on the main menu
         String[] mainOptions = {"Register user", "Log in", "Quit"};
     
         // Main menu reappears after each case unless program is terminated
         while(running) {
-    
+            // JOptionPane used to display the main menu of the program.
+            // Parent component: null because there is no parent component
+            // Message text: "Main Menu"
+            // Title tex: "QuickChat"
+            // Button layout: YES_NO_CANCEL_OPTION gives three buttons to work with
+            // Message type: the dialog box is plain
+            // Icon: null = no custom icon
+            // Options: changes the text on the buttons according to the array mainOptions
+            // Initial value: -2
             selection = JOptionPane.showOptionDialog(null, "Main Menu",
                                                      "QuickChat",
                                                      JOptionPane.YES_NO_CANCEL_OPTION,
@@ -32,11 +40,13 @@ public class Messenger_App {
                                                      null, mainOptions, -2);
 
             switch(selection) {
-                case 0 -> {                   
+                case 0 -> {              
+                    // showInputDialog used to obtain user input
                     String username = JOptionPane.showInputDialog(null, "Enter a username." +
                                                             "\n\nHint: Username must have an underscore(_), and cannot be longer than five characters.",
                                                             "Register User", JOptionPane.PLAIN_MESSAGE);
                     
+                    // If the user clicks "Cancel" or the "X" button, they return to the main menu
                     if(username == null) {
                         break;
                     }
@@ -54,7 +64,8 @@ public class Messenger_App {
                         Login.registerUser("InvalidUsername");
                         break;
                     }                                       
-                                            
+                             
+                    // Input for the password is obtained in the same way as the username
                     String password = JOptionPane.showInputDialog(null, "Enter a password." +
                                                                   "\n\nHint: Password must have a capital letter, " +
                                                                   "a number, a special character, and must be at least eight characters long.",
@@ -71,6 +82,7 @@ public class Messenger_App {
                         break;
                     }
                     
+                    // Input for the phone number is obtained in the same way as the username and password
                     String phoneNumber = JOptionPane.showInputDialog(null, "Enter your cell phone number." +
                                                                      "\n\nHint: Phone number must contain the South African country code(+27XXXXXXXXX).",
                                                                      "Register User", JOptionPane.PLAIN_MESSAGE);
@@ -106,7 +118,7 @@ public class Messenger_App {
                     promptLogin(users);
                     break;
                 }
-                case 2, -1 -> {
+                case 2, -1 -> { // -1 is the value returned when the "X" button is clicked
                     // Terminates the program
                     JOptionPane.showMessageDialog(null, "Exiting... Come back soon!", "Quit",
                                                   JOptionPane.INFORMATION_MESSAGE);
@@ -141,15 +153,14 @@ public class Messenger_App {
         // Prints message (using the returnLoginStatus method) if the user is found or details are incorrect
         JOptionPane.showMessageDialog(null, user != null ? user.returnLoginStatus(loginStatus) : "\nUser not found.",
                                       "Log In", JOptionPane.PLAIN_MESSAGE);
-        
-        Scanner scanner = new Scanner(System.in);
+       
         // If login was successful, move on to messaging stage
         if(loginStatus) {
-            startMessaging(scanner);           
+            startMessaging();           
         }
     }
     
-    private static void startMessaging(Scanner scanner) {
+    private static void startMessaging() {
         // User decides how many messages they want to send
         int numMessages = 0;
         while(numMessages <= 0) {          
@@ -168,12 +179,15 @@ public class Messenger_App {
             }
         }
 
+        // Counts how many messages have been sent
         int messageCounter = 0;
+        // The messaging portion of the app will continue to run as long as this value is true
         boolean chatRunning = true;
+        // Array that stores the options for the secondary menu
         String[] messageOptions = {"Send messages", "Show recently sent messages", "Quit"};
  
         // Program runs until the user chooses to quit
-        outerLoop:
+        outerLoop: // This label is used to refer to this specific while-loop when you want to jump back to the start of it
         while(chatRunning) {        
            int selection = JOptionPane.showOptionDialog(null, "Messaging Menu",
                                                         "QuickChat",
@@ -201,13 +215,17 @@ public class Messenger_App {
                                                                     "\n\nEnter recipient cell number (e.g. +27XXXXXXXXX).",
                                                                     "QuickChat", JOptionPane.PLAIN_MESSAGE);
                             
+                            // If the user cancels this action, they are sent back to the previous menu and 
+                            // the message counter resets.
                             if(recipient == null) {
                                 messageCounter = 0;
                                 continue outerLoop;
                             }
                             
+                            // Phone number is validated using the checkRecipientCell method
                             String recipientCheck = Message.checkRecipientCell(recipient);                    
                             
+                            // Show message depending on the outcome of the validation
                             if(recipientCheck.equals("Cell phone number successfully captured.")) {
                                 JOptionPane.showMessageDialog(null, recipientCheck, "QuickChat", JOptionPane.INFORMATION_MESSAGE);
                                 break;
@@ -228,8 +246,10 @@ public class Messenger_App {
                                 continue outerLoop;
                             }
                             
+                            // Phone number is validated using the checkRecipientCell method
                             String lengthCheck = Message.checkMessageLength(messageText);
                             
+                            // Same as the recipient phone number validation
                             if(lengthCheck.equals("Message ready to send.")) {
                                 JOptionPane.showMessageDialog(null, lengthCheck, "QuickChat", JOptionPane.INFORMATION_MESSAGE);
                                 break;
@@ -240,8 +260,10 @@ public class Messenger_App {
  
                         // Create the message object
                         Message msg = new Message(messageCounter, recipient, messageText);
+                        // Array that stores the options for what to do with the message
                         String[] messageOptions2 = {"Send message", "Disregard message", "Store message to send later"};
 
+                        // Message hash and message ID are displayed in this dialog box
                         int action = JOptionPane.showOptionDialog(null, "Message ID: " + msg.getMessageID() +
                                                                   "\nMessage Hash: " + msg.getMessageHash() +  
                                                                   "\n\nWhat would you like to do?", "QuickChat",
@@ -249,11 +271,13 @@ public class Messenger_App {
                                                                   JOptionPane.PLAIN_MESSAGE,
                                                                   null, messageOptions2, -2);
 
+                        // If the "X" button is clicked, return to the previous menu
                         if(action == -1) {
                             messageCounter = 0;
                             continue outerLoop;
                         }
                         
+                        // Displays a message depending on what the user chooses
                         JOptionPane.showMessageDialog(null, msg.sentMessage(action), "QuickChat", JOptionPane.INFORMATION_MESSAGE);
  
                         // Decrement the message counter if the message is disregarded
@@ -270,9 +294,11 @@ public class Messenger_App {
                     
                 }
                 case 1 -> {
+                    // To be completed in Part 3 of the PoE
                     JOptionPane.showMessageDialog(null, "Coming soon...", "QuickChat", JOptionPane.INFORMATION_MESSAGE);
                 }
                 case 2, -1 -> {
+                    // Terminates the program
                     JOptionPane.showMessageDialog(null, "Exiting... Come back soon!", "Quit",
                                                   JOptionPane.INFORMATION_MESSAGE);
                     
@@ -280,13 +306,14 @@ public class Messenger_App {
                     running = false;
                 }
                 default -> {
+                    // Invalid input error message.
                     System.out.println("Invalid input.");
                 }
             }
         }
     }
-
     
+    // Class that handles the login process
     public static class Login {
         private String username;
         private String password;
@@ -322,7 +349,7 @@ public class Messenger_App {
             return phoneNumber.matches("\\+27[6-8]\\d{8}");
         }
         
-        // Method that returns a message depending on registration success
+        // Method that displays a message depending on registration success
         public static void registerUser(String registerCase){
             switch(registerCase){
                 case "InvalidUsername" -> JOptionPane.showMessageDialog(null,
