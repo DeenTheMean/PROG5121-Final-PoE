@@ -600,8 +600,7 @@ public class Messenger_App {
         }
         
         public static void searchMessageID() {
-            boolean flag = false;
-            
+            boolean flag = false;            
             String searchID = JOptionPane.showInputDialog(null, "Enter the Message ID of the message you'd like to search for.",
                                                           "Stored Messages", JOptionPane.PLAIN_MESSAGE);
             
@@ -625,7 +624,48 @@ public class Messenger_App {
         }
         
         public static void searchRecipientMessages() {
+            StringBuilder stringBuilder = new StringBuilder();
+            boolean flag = false;
+            String searchRecipient = "";
+
+            while (true) {
+                searchRecipient = JOptionPane.showInputDialog(null, "Enter the number of a recipient to see the messages " +
+                                                              "you've stored for them (e.g. +27XXXXXXXXX).",
+                                                              "Stored Messages", JOptionPane.PLAIN_MESSAGE);
+
+                if (searchRecipient == null) {
+                    return;
+                }
+
+                if (checkRecipientCell(searchRecipient).equals("Cell phone number successfully captured.")) {
+                    break;
+                } else {
+                    JOptionPane.showMessageDialog(null, checkRecipientCell(searchRecipient),                                            
+                                                  "Stored Messages", JOptionPane.WARNING_MESSAGE);
+                }
+            }
             
+            for (Message m : storedMessages) {
+                if (searchRecipient.equals(m.recipient)) {
+                    flag = true;
+                    
+                    stringBuilder.append("-----------------------------\n");
+                    stringBuilder.append("Message ID: ").append(m.messageID).append("\n");
+                    stringBuilder.append("Message Hash: ").append(m.messageHash).append("\n");
+                    stringBuilder.append("Sender: ").append(Login.getPhoneNumber()).append("\n");
+                    stringBuilder.append("Recipient: ").append(m.recipient).append("\n");
+                    stringBuilder.append("Message: ").append(m.messageText).append("\n");
+                }
+            }           
+            stringBuilder.append("-----------------------------");
+            
+            if (flag) {
+                JOptionPane.showMessageDialog(null, "Displaying messages stored for " + searchRecipient + ".\n\n" + stringBuilder.toString(),                                            
+                                              "Stored Messages", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                JOptionPane.showMessageDialog(null, "Recipient not found.",                                            
+                                              "Stored Messages", JOptionPane.WARNING_MESSAGE);
+            }
         }
         
         public static void deleteStoredMessage() {
