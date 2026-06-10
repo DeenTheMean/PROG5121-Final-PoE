@@ -166,7 +166,7 @@ public class Messenger_App {
         // The messaging portion of the app will continue to run as long as this value is true
         boolean chatRunning = true;
         // Array that stores the options for the secondary menu
-        String[] messageOptions = {"Send messages", "Stored messages", "Quit"};
+        String[] messageOptions = {"Send messages", "View stored messages", "Quit"};
  
         // Program runs until the user chooses to quit
         outerLoop: // This label is used to refer to this specific while-loop when you want to jump back to the start of it
@@ -600,7 +600,28 @@ public class Messenger_App {
         }
         
         public static void searchMessageID() {
+            boolean flag = false;
             
+            String searchID = JOptionPane.showInputDialog(null, "Enter the Message ID of the message you'd like to search for.",
+                                                          "Stored Messages", JOptionPane.PLAIN_MESSAGE);
+            
+            if (searchID == null) {
+                return;
+            }
+            
+            for (Message m : storedMessages) {
+                if (searchID.equals(m.messageID)) {
+                    flag = true;
+                    JOptionPane.showMessageDialog(null, "Message found!\n\nRecipient: " + m.recipient +
+                                                  "\nMessage: " + m.messageText, "Stored Messages", JOptionPane.INFORMATION_MESSAGE);
+                    break;
+                }
+            }
+
+            if (!flag) {
+                JOptionPane.showMessageDialog(null, "Message with ID of " + searchID + " does not exist.",
+                                              "Stored Messages", JOptionPane.WARNING_MESSAGE);
+            }
         }
         
         public static void searchRecipientMessages() {
