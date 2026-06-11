@@ -1,15 +1,49 @@
 package TestClass;
 
+import com.mycompany.messenger_app.Messenger_App;
 import com.mycompany.messenger_app.Messenger_App.Login;
 import com.mycompany.messenger_app.Messenger_App.Message;
+import java.util.ArrayList;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
 
 /**
  *
  * @author Deen
  */
 public class TestApp {
+    
+    @BeforeEach
+    public void setUp() {
+        // Clear all three arrays and reset the sent counter before every test
+        Messenger_App.sentMessages.clear();
+        Messenger_App.storedMessages.clear();
+        Messenger_App.disregardedMessages.clear();
+        Message.resetTotalMessagesSent();
+        
+        // Populate arrays using sentMessage.
+        // First message is sent
+        Message msg1 = new Message(1, "+27834557896", "Did you get the cake?");
+        msg1.sentMessage(0);
+ 
+        // Second message is stored
+        Message msg2 = new Message(2, "+27838884567", "Where are you? You are late! I have asked you to be on time.");
+        msg2.sentMessage(2);
+ 
+        // Third message is disregarded
+        Message msg3 = new Message(3, "+27834484567", "Yohoooo, I am at your gate.");
+        msg3.sentMessage(1);
+ 
+        // Fourth message is sent
+        Message msg4 = new Message(4, "0838884567", "It is dinner time!");
+        msg4.sentMessage(0);
+ 
+        // Fifth message is stored
+        Message msg5 = new Message(5, "+27838884567", "Ok, I am leaving without you.");
+        msg5.sentMessage(2);
+
+    }
     
     // ========== Username format tests ==========
 
@@ -155,6 +189,7 @@ public class TestApp {
  
     @Test
     public void testSentMessageSend() {
+        Message.resetTotalMessagesSent();
         // If the message is sent
         Message msg = new Message(1, "+27718693002", "Hi Mike, can you join us for dinner tonight?");
         
@@ -180,4 +215,81 @@ public class TestApp {
         String result = msg.sentMessage(2);
         assertEquals("Message successfully stored.", result);
     }  
+    
+    // ========== PoE Part 3 unit tests ========== 
+    
+    @Test
+    public void testSentMessagesArrayPopulation() {
+        // Checks if the message text matches
+        assertEquals("Did you get the cake?", Messenger_App.sentMessages.get(0).getMessageText());
+        assertEquals("It is dinner time!", Messenger_App.sentMessages.get(1).getMessageText());
+    }
+    
+    @Test
+    public void testLongestStoredMessage() {
+        String longestMessage = "";
+            
+            // Same algorithm used in main program to find the longest message
+            for (Message m : Messenger_App.storedMessages) {
+                if (m.getMessageText().length() > longestMessage.length()) {
+                    longestMessage = m.getMessageText();
+                }
+            }
+        
+        assertEquals("Where are you? You are late! I have asked you to be on time.", longestMessage);
+    }
+    
+    @Test
+    public void testMessageIDSearch() {
+        String searchID = Messenger_App.sentMessages.get(1).getMessageID();
+ 
+        // Test if searched Message ID matches
+        Message foundID = null;
+        for (Message m : Messenger_App.sentMessages) {
+            if (m.getMessageID().equals(searchID)) {
+                foundID = m;
+                break;
+            }
+        }
+ 
+        assertNotNull(foundID, "Message should be found by its ID.");
+        assertEquals("It is dinner time!", foundID.getMessageText());
+    }
+    
+    @Test
+    public void testRecipientSearch() {
+        String recipientNum = "+27838884567";
+        ArrayList<String> results = new ArrayList<>();
+        
+        // Test if searched recipient messages exist
+        for (Message m : Messenger_App.storedMessages) {
+            if (m.getRecipient().equals(recipientNum)) {
+                results.add(m.getMessageText());
+            }
+        }
+        
+        assertTrue(results.contains("Where are you? You are late! I have asked you to be on time."));
+        assertTrue(results.contains("Ok, I am leaving without you."));
+    }
+    
+    @Test
+    public void testDeleteByHash() {
+        String searchHash = Messenger_App.storedMessages.get(0).getMessageHash();
+        
+        // Test if the message with the searched hash was removed
+        boolean removed = Messenger_App.storedMessages.removeIf(m -> m.getMessageHash().equals(searchHash));
+        
+        assertTrue(removed);
+    }
+    
+    @Test
+    public void testDisplayReport() {
+        Login user = new Login("deen_", "Password1!", "+27712345678");
+        String report = Message.printSentMessages(user);
+        
+        assertTrue(report.contains("Message: Did you get the cake?"));
+        assertTrue(report.contains("Recipient: +27834557896"));
+        assertTrue(report.contains("Message Hash: " + Messenger_App.sentMessages.get(0).getMessageHash()));
+        
+    }
 }

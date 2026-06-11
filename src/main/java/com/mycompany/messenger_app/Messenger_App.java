@@ -13,9 +13,9 @@ public class Messenger_App {
     // As long as this value is true, the program will continue to run
     static boolean running = true;
     
-    static ArrayList<Message> sentMessages = new ArrayList<>();
-    static ArrayList<Message> disregardedMessages = new ArrayList<>();
-    static ArrayList<Message> storedMessages = new ArrayList<>();
+    public static ArrayList<Message> sentMessages = new ArrayList<>();
+    public static ArrayList<Message> disregardedMessages = new ArrayList<>();
+    public static ArrayList<Message> storedMessages = new ArrayList<>();
 
     public static void main(String[] args) {      
         // Declaration of ArrayList used for storing user
@@ -158,11 +158,11 @@ public class Messenger_App {
        
         // If login was successful, move on to messaging stage
         if(loginStatus) {
-            startMessaging();           
+            startMessaging(user);           
         }
     }
     
-    private static void startMessaging() {
+    private static void startMessaging(Login user) {
         // The messaging portion of the app will continue to run as long as this value is true
         boolean chatRunning = true;
         // Array that stores the options for the secondary menu
@@ -285,7 +285,7 @@ public class Messenger_App {
                     // Show summary of message details
                     JOptionPane.showMessageDialog(null, "Total messages sent: " +
                                                   Message.returnTotalMessages() + "\n" +
-                                                  Message.printSentMessages(),
+                                                  Message.printSentMessages(user),
                                                   "QuickChat", JOptionPane.INFORMATION_MESSAGE);
                     
                 }
@@ -302,7 +302,7 @@ public class Messenger_App {
 
                             // The details of all stored messages are shown on this menu
                             int storedMessageAction = JOptionPane.showOptionDialog(null, "All stored messages:\n\n" +
-                                                                                   Message.printStoredMessages(), "Stored Messages",
+                                                                                   Message.printStoredMessages(user), "Stored Messages",
                                                                                    JOptionPane.DEFAULT_OPTION,
                                                                                    JOptionPane.PLAIN_MESSAGE,
                                                                                    null, storedMessageOptions, -2);
@@ -320,7 +320,7 @@ public class Messenger_App {
                                 case 2 -> {
                                     // A method is called to prompt the user to search for messages
                                     // stored for a specific recipient
-                                    Message.searchRecipientMessages();
+                                    Message.searchRecipientMessages(user);
                                 }
                                 case 3 -> {
                                     // A method is called to prompt the user to delete a message
@@ -365,7 +365,7 @@ public class Messenger_App {
     public static class Login {
         private String username;
         private String password;
-        private static String phoneNumber;
+        private String phoneNumber;
         
         // Constructor
         public Login(String username, String password, String phoneNumber){
@@ -430,7 +430,7 @@ public class Messenger_App {
             return status ? "\nLogin successful!" : "\nUsername or password incorrect. Please try again.";
         }
         
-        public static String getPhoneNumber() {
+        public String getPhoneNumber() {
             return phoneNumber;
         }
     }
@@ -523,7 +523,7 @@ public class Messenger_App {
         }
  
         // Returns the details of the messages sent
-        public static String printSentMessages() {
+        public static String printSentMessages(Login user) {
             if (sentMessages.isEmpty()) {
                 return "No messages sent yet.";
             }
@@ -534,7 +534,7 @@ public class Messenger_App {
                 stringBuilder.append("-----------------------------\n");
                 stringBuilder.append("Message ID: ").append(m.messageID).append("\n");
                 stringBuilder.append("Message Hash: ").append(m.messageHash).append("\n");
-                stringBuilder.append("Sender: ").append(Login.getPhoneNumber()).append("\n");
+                stringBuilder.append("Sender: ").append(user.getPhoneNumber()).append("\n");
                 stringBuilder.append("Recipient: ").append(m.recipient).append("\n");
                 stringBuilder.append("Message: ").append(m.messageText).append("\n");
             }
@@ -544,7 +544,7 @@ public class Messenger_App {
         }
        
         // Returns the details of the stored messages
-        public static String printStoredMessages() {
+        public static String printStoredMessages(Login user) {
             if (storedMessages.isEmpty()) {
                 return "No messages stored.";
             }
@@ -555,7 +555,7 @@ public class Messenger_App {
                 stringBuilder.append("-----------------------------\n");
                 stringBuilder.append("Message ID: ").append(m.messageID).append("\n");
                 stringBuilder.append("Message Hash: ").append(m.messageHash).append("\n");
-                stringBuilder.append("Sender: ").append(Login.getPhoneNumber()).append("\n");
+                stringBuilder.append("Sender: ").append(user.getPhoneNumber()).append("\n");
                 stringBuilder.append("Recipient: ").append(m.recipient).append("\n");
                 stringBuilder.append("Message: ").append(m.messageText).append("\n");
             }
@@ -682,7 +682,7 @@ public class Messenger_App {
         }
         
         // Searches for messages based on the phone number of the message recipient
-        public static void searchRecipientMessages() {
+        public static void searchRecipientMessages(Login user) {
             // Display appropriate message if there are no stored messages
             if (storedMessages.isEmpty()){
                 JOptionPane.showMessageDialog(null, "There are no stored messages!",                                            
@@ -725,7 +725,7 @@ public class Messenger_App {
                     stringBuilder.append("-----------------------------\n");
                     stringBuilder.append("Message ID: ").append(m.messageID).append("\n");
                     stringBuilder.append("Message Hash: ").append(m.messageHash).append("\n");
-                    stringBuilder.append("Sender: ").append(Login.getPhoneNumber()).append("\n");
+                    stringBuilder.append("Sender: ").append(user.getPhoneNumber()).append("\n");
                     stringBuilder.append("Recipient: ").append(m.recipient).append("\n");
                     stringBuilder.append("Message: ").append(m.messageText).append("\n");
                 }
@@ -776,6 +776,11 @@ public class Messenger_App {
             }        
         }
  
+        // Resets the total number of messages sent
+        public static void resetTotalMessagesSent() {
+            totalMessagesSent = 0;
+        }
+        
         // Returns the message ID
         public String getMessageID() {
             return messageID; 
